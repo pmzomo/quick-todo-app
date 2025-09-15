@@ -1,0 +1,5 @@
+{
+  "name": "Copy of To-Do Calendar",
+  "description": "A simple and elegant to-do list application integrated with a calendar view. Save your tasks by date and easily retrieve them. All your data is saved locally in your browser.",
+  "requestFramePermissions": []
+}
