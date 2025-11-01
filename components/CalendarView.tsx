@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { TodoItem } from '../types';
+import { Todos } from '../types';
 
 interface CalendarViewProps {
   selectedDate: Date;
   onDateChange: (date: Date) => void;
-  todos: TodoItem[];
+  todos: Todos;
   formatDateKey: (date: Date) => string;
 }
 
@@ -23,29 +23,31 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange,
   
   const hasTodosOn = useCallback((date: Date): boolean => {
     const dateKey = formatDateKey(date);
+    if (todos[dateKey]?.length > 0) return true;
+
+    // Use UTC date for consistent day/date calculations across timezones
     const dateUTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const day = dateUTC.getUTCDate();
     const dayOfWeek = dateUTC.getUTCDay();
 
-    for (const task of todos) {
-      const createdAtDateUTC = new Date(task.createdAt + 'T00:00:00Z');
-
-      if (!task.recurrence) {
-        if (task.createdAt === dateKey) return true;
-      } else {
+    for (const createdDateKey in todos) {
+        const createdAtDateUTC = new Date(createdDateKey + 'T00:00:00Z');
         if (createdAtDateUTC > dateUTC) continue;
 
-        switch (task.recurrence) {
-          case 'daily':
-            return true;
-          case 'weekly':
-            if (createdAtDateUTC.getUTCDay() === dayOfWeek) return true;
-            break;
-          case 'monthly':
-            if (createdAtDateUTC.getUTCDate() === day) return true;
-            break;
+        for (const task of todos[createdDateKey]) {
+            if (!task.recurrence) continue;
+            
+            switch (task.recurrence) {
+                case 'daily':
+                    return true;
+                case 'weekly':
+                    if (createdAtDateUTC.getUTCDay() === dayOfWeek) return true;
+                    break;
+                case 'monthly':
+                    if (createdAtDateUTC.getUTCDate() === day) return true;
+                    break;
+            }
         }
-      }
     }
     return false;
   }, [todos, formatDateKey]);
@@ -85,13 +87,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange,
             <div key={dateKey} onClick={() => onDateChange(day)} className="relative flex items-center justify-center h-10 w-10">
               <button className={`
                 h-10 w-10 rounded-full text-sm font-medium transition-all duration-200 ease-in-out
-                ${isSelected ? 'bg-blue-600 text-white shadow-md scale-110' : ''}
-                ${!isSelected && isToday ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-700 dark:text-gray-300'}
+                ${isSelected ? 'bg-indigo-600 text-white shadow-md scale-110' : ''}
+                ${!isSelected && isToday ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-gray-700 dark:text-gray-300'}
                 ${!isSelected ? 'hover:bg-gray-200 dark:hover:bg-gray-700' : ''}
               `}>
                 {day.getDate()}
               </button>
-              {hasTodos && <span className={`absolute bottom-1 h-1.5 w-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-blue-500'}`}></span>}
+              {hasTodos && <span className={`absolute bottom-1 h-1.5 w-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-indigo-500'}`}></span>}
             </div>
           );
         })}

@@ -1,27 +1,15 @@
 export interface TodoItem {
   id: string;
   text: string;
-  createdAt: string;
+  createdAt: string; // YYYY-MM-DD format
   recurrence?: 'daily' | 'weekly' | 'monthly';
 }
 
-export interface TimeSession {
-  id: string;
-  todo_id: string;
-  session_date: string;
-  start_time: string;
-  end_time: string | null;
-  duration_seconds: number | null;
-}
-
+// This is the shape of the data passed to the view components
 export interface TodoItemViewData extends TodoItem {
-  completed: boolean;
-  totalTimeToday?: number;
-  totalTimeMonth?: number;
-  isTimerActive?: boolean;
-  activeSessionId?: string;
+    completed: boolean;
 }
 
-export type Todos = Record<string, TodoItem[]>;
+export type Todos = Record<string, TodoItem[]>; // key: dateKey (createdAt)
 
-export type TodoCompletions = Record<string, string[]>;
+export type TodoCompletions = Record<string, string[]>; // key: dateKey (completionDate), value: array of completed todo IDs
