@@ -10,6 +10,8 @@ interface TodoListViewProps {
   onAddTodo: (text: string, recurrence: RecurrenceType) => void;
   onToggleTodo: (id: string) => void;
   onDeleteTodo: (id: string) => void;
+  onStartTimer: (id: string) => void;
+  onStopTimer: (id: string) => void;
 }
 
 const TodoListView: React.FC<TodoListViewProps> = ({
@@ -18,6 +20,8 @@ const TodoListView: React.FC<TodoListViewProps> = ({
   onAddTodo,
   onToggleTodo,
   onDeleteTodo,
+  onStartTimer,
+  onStopTimer,
 }) => {
   const [newTodoText, setNewTodoText] = useState('');
   const [recurrence, setRecurrence] = useState<RecurrenceType>('none');
@@ -46,7 +50,7 @@ const TodoListView: React.FC<TodoListViewProps> = ({
         </p>
          {totalCount > 0 && (
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-3">
-            <div className="bg-indigo-600 h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+            <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
           </div>
         )}
       </div>
@@ -59,6 +63,8 @@ const TodoListView: React.FC<TodoListViewProps> = ({
               todo={todo}
               onToggle={onToggleTodo}
               onDelete={onDeleteTodo}
+              onStartTimer={onStartTimer}
+              onStopTimer={onStopTimer}
             />
           ))}
         </ul>
@@ -70,20 +76,20 @@ const TodoListView: React.FC<TodoListViewProps> = ({
           value={newTodoText}
           onChange={(e) => setNewTodoText(e.target.value)}
           placeholder="Add a new task..."
-          className="flex-grow px-4 py-3 bg-gray-100 dark:bg-gray-700 border-transparent rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-gray-800 dark:text-white transition"
+          className="flex-grow px-4 py-3 bg-gray-100 dark:bg-gray-700 border-transparent rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-800 dark:text-white transition"
         />
         <div className="flex-shrink-0 flex gap-3">
           <select 
             value={recurrence}
             onChange={(e) => setRecurrence(e.target.value as RecurrenceType)}
-            className="px-4 py-3 bg-gray-100 dark:bg-gray-700 border-transparent rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-gray-800 dark:text-white transition"
+            className="px-4 py-3 bg-gray-100 dark:bg-gray-700 border-transparent rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-gray-800 dark:text-white transition"
           >
             <option value="none">Once</option>
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
           </select>
-          <button type="submit" className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition-colors shadow-md hover:shadow-lg">
+          <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors shadow-md hover:shadow-lg">
             Add
           </button>
         </div>
