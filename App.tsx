@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { supabase } from './lib/supabase';
+import { useAuth } from './contexts/AuthContext';
 import { migrateLocalStorageToSupabase } from './utils/migrateLocalStorage';
 import CalendarView from './components/CalendarView';
 import TodoListView from './components/TodoListView';
 import { TodoItem, TodoItemViewData, TimeSession } from './types';
 
 const App: React.FC = () => {
+  const { session, signOut } = useAuth();
   const [todos, setTodos] = useState<TodoItem[]>([]);
   const [completions, setCompletions] = useState<Record<string, Set<string>>>({});
   const [timeSessions, setTimeSessions] = useState<TimeSession[]>([]);
@@ -331,10 +333,10 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading your tasks...</p>
         </div>
       </div>
     );
@@ -342,11 +344,25 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 text-gray-900 dark:text-gray-100 font-sans">
-      <header className="text-center mb-8">
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-800 dark:text-white">
-          To-Do <span className="text-blue-600 dark:text-blue-400">Calendar</span>
-        </h1>
-        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">Organize your tasks and track your time.</p>
+      <header className="text-center mb-8 flex flex-col items-center">
+        <div className="flex items-center justify-between w-full mb-4">
+          <div className="flex-1"></div>
+          <div className="flex-1 text-center">
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-800 dark:text-white">
+              To-Do <span className="text-blue-600 dark:text-blue-400">Calendar</span>
+            </h1>
+          </div>
+          <div className="flex-1 flex justify-end">
+            <button
+              onClick={signOut}
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition-colors text-sm"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+        <p className="text-lg text-gray-600 dark:text-gray-400">Organize your tasks and track your time.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">{session?.user.email}</p>
       </header>
 
       <div className="max-w-6xl mx-auto mb-4 flex justify-end">
