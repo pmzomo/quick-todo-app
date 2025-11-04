@@ -6,10 +6,41 @@ interface CalendarViewProps {
   onDateChange: (date: Date) => void;
   todos: TodoItem[];
   formatDateKey: (date: Date) => string;
+  completions: Record<string, Set<string>>;
 }
 
-const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange, todos, formatDateKey }) => {
+const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange, todos, formatDateKey, completions }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1));
+
+  const monthStats = useMemo(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    let totalCreated = 0;
+    let totalCompleted = 0;
+    const completedTodoIds = new Set<string>();
+
+    todos.forEach(task => {
+      const createdDateUTC = new Date(task.createdAt + 'T00:00:00Z');
+      const taskMonth = createdDateUTC.getUTCMonth();
+      const taskYear = createdDateUTC.getUTCFullYear();
+
+      if (taskYear === year && taskMonth === month) {
+        totalCreated++;
+      }
+    });
+
+    Object.entries(completions).forEach(([dateStr, todoIds]) => {
+      const [y, m] = dateStr.split('-').map(Number);
+      if (y === year && m - 1 === month) {
+        todoIds.forEach(id => completedTodoIds.add(id));
+      }
+    });
+
+    totalCompleted = completedTodoIds.size;
+    const totalRemaining = Math.max(0, totalCreated - totalCompleted);
+
+    return { totalCreated, totalCompleted, totalRemaining };
+  }, [currentMonth, todos, completions]);
 
   const daysInMonth = useMemo(() => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
@@ -59,7 +90,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange,
 
   return (
     <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg w-full">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-6">
         <button onClick={() => changeMonth(-1)} className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         </button>
@@ -69,6 +100,21 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, onDateChange,
         <button onClick={() => changeMonth(1)} className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
         </button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+          <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Total Created</p>
+          <p className="text-3xl font-extrabold text-blue-700 dark:text-blue-300 mt-2">{monthStats.totalCreated}</p>
+        </div>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 p-4 rounded-lg border border-green-200 dark:border-green-700">
+          <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase tracking-wider">Completed</p>
+          <p className="text-3xl font-extrabold text-green-700 dark:text-green-300 mt-2">{monthStats.totalCompleted}</p>
+        </div>
+        <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/30 dark:to-orange-800/30 p-4 rounded-lg border border-orange-200 dark:border-orange-700">
+          <p className="text-xs font-semibold text-orange-600 dark:text-orange-400 uppercase tracking-wider">Remaining</p>
+          <p className="text-3xl font-extrabold text-orange-700 dark:text-orange-300 mt-2">{monthStats.totalRemaining}</p>
+        </div>
       </div>
       <div className="grid grid-cols-7 gap-2 text-center">
         {weekdays.map(day => (

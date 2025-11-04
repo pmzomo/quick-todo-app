@@ -387,6 +387,7 @@ const App: React.FC = () => {
               onDateChange={setSelectedDate}
               todos={todos}
               formatDateKey={formatDateKey}
+              completions={completions}
             />
           </div>
         )}
